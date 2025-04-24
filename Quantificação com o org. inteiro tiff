@@ -1,0 +1,68 @@
+// Quantificação com o organoide inteiro imagem em tiff
+
+// Verifica se há imagens abertas
+if (nImages == 0) {
+    exit("Por favor, abra as imagens manualmente antes de rodar a macro.");
+}
+
+// Define a escala (1 pixel = 0,568 µm)
+pixelWidth = 0.568;
+pixelHeight = 0.568;
+unit = "um";
+
+// Loop para processar cada imagem _ch00
+for (i = 1; i <= nImages; i++) {
+    // Seleciona a imagem atual
+    selectImage(i);
+    currentTitle = getTitle();
+
+    // Verifica se a imagem termina com _ch00
+    if (endsWith(currentTitle, "_ch00.tif")) {
+        // Converte para 8-bit
+        run("8-bit");
+
+        // Define a escala
+        run("Set Scale...", "distance=1 known=" + pixelWidth + " pixel=1 unit=" + unit + " global");
+
+        // Ajusta o threshold (1, 255)
+        setAutoThreshold("Default");
+        setThreshold(1, 255);
+		setOption("BlackBackground", true);
+		run("Convert to Mask");
+        // Aplica Fill Holes
+        run("Fill Holes");
+
+        // Seleciona a área com a varinha mágica na posição (1692, 2040)
+        doWand(1692, 2040);
+		roiManager("Add");
+
+        // Abre a imagem correspondente _ch01
+        ch01Title = replace(currentTitle, "_ch00.tif", "_ch01.tif");
+        selectWindow(ch01Title);
+
+        // Converte para 8-bit
+        run("8-bit");
+
+        // Define a escala
+        run("Set Scale...", "distance=1 known=" + pixelWidth + " pixel=1 unit=" + unit + " global");
+
+		// Ajusta o threshold (1, 255)
+        setAutoThreshold("Default");
+        setThreshold(7, 255);
+		setOption("BlackBackground", true);
+
+
+        // Aplica a máscara da imagem _ch00 à imagem _ch01
+        run("Convert to Mask");
+		run("Restore Selection");
+
+        // Realiza as medições (area, mean, min, integrated density)
+        run("Set Measurements...", "area mean min integrated redirect=None decimal=3");
+        run("Measure");
+
+        
+    }
+}
+
+// Exibe uma mensagem ao finalizar
+print("Processamento concluído! Verifique a tabela de resultados.");
