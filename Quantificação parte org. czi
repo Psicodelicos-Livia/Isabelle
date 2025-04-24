@@ -1,4 +1,4 @@
-// Quantificação para imagens s/ o organoide inteiro
+// Quantificação para imagens s/ o organoide inteiro imagem em czi
 
 // Verifica se há imagens abertas
 if (nImages == 0) {
