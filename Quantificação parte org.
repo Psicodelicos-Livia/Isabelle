@@ -1,0 +1,40 @@
+// Quantificação para imagens s/ o organoide inteiro
+
+// Verifica se há imagens abertas
+if (nImages == 0) {
+    exit("Por favor, abra as imagens manualmente antes de rodar a macro.");
+}
+// Define a escala 
+run("Set Scale...", "distance=1 known=0.16 unit=micron global");
+
+// Separar os canais
+	run("Split Channels");
+
+// Loop para processar cada imagem 
+for (i = 1; i <= nImages; i++) {
+    // Seleciona a imagem atual
+    selectImage(i);
+    currentTitle = getTitle();
+
+    // Verifica se a imagem termina com C1-
+    if (startsWith(currentTitle, "C1-")) {
+        // Converte para 8-bit
+        run("8-bit");
+
+     // Ajusta o threshold (32, 255)
+        setAutoThreshold("Default");
+        setThreshold(32, 255);
+		setOption("BlackBackground", true);
+		run("Convert to Mask");
+        saveAs("Tiff", getDirectory("C:\Users\cubai\OneDrive\Documents\Iniciação Científica\IDOR\11_24 imuno 250225\Tiff novo\B3 FoxG1") + getTitle() + ".tif"); 
+  
+     // Realiza as medições (area, mean, min, integrated density)
+        run("Set Measurements...", "area mean min integrated display redirect=None decimal=3");
+        run("Measure");
+
+        
+    }
+}
+
+// Exibe uma mensagem ao finalizar
+print("Processamento concluído! Verifique a tabela de resultados.");
